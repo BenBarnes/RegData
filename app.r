@@ -127,11 +127,14 @@ ui <- fluidPage(
       .year-scroll .checkbox            { margin: 0 !important; padding: 0 !important; }
       .year-scroll .checkbox label      {
         display: flex; align-items: center; gap: 10px;
-        padding: 5px 6px; border-radius: 4px; cursor: pointer;
-        color: #a0a0a8; font-size: 12px; transition: color .15s, background .15s;
+        padding: 5px 6px; border-left: 2px solid transparent; border-radius: 4px; cursor: pointer;
+        color: #4e4e58; font-size: 12px; transition: color .15s, background .15s;
       }
       .year-scroll .checkbox label:hover { color: #f0ebe0; background: #1e1e22; }
       .year-scroll input[type=checkbox]  { accent-color: #c4a882; width: 13px; height: 13px; }
+      .year-scroll .checkbox:has(input:checked) label {
+        color: #f0ebe0; background: #1e1e22; border-left-color: #c4a882;
+      }
 
       .sel-btns { display: flex; gap: 8px; margin-bottom: 10px; }
       .sel-btn  {
@@ -297,7 +300,6 @@ server <- function(input, output, session) {
     agg <- data %>%
       group_by(diagnosis) %>%
       summarise(cases = sum(.data[[col]], na.rm = TRUE), .groups = "drop") %>%
-      filter(cases > 0) %>%
       arrange(diagnosis)
     if (nrow(agg) == 0) return(
       ggplot() + base_theme() +
