@@ -13,7 +13,6 @@ age_levels <- c("0 - 4","5 - 9","10 - 14","15 - 19","20 - 24","25 - 29",
                 "60 - 64","65 - 69","70 - 74","75 - 79","80 - 84","85+")
 
 df <- df_raw %>%
-  filter(!is.na(women), !is.na(men)) %>%
   mutate(age_group = factor(age_group, levels = age_levels))
 
 all_years  <- sort(unique(df$year))
