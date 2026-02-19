@@ -294,21 +294,26 @@ server <- function(input, output, session) {
   }
 
   make_hist <- function(data, col, fill_col, label) {
-    vals <- data[[col]]
-    vals <- vals[!is.na(vals) & vals > 0]
-    if (length(vals) == 0) return(
+    agg <- data %>%
+      group_by(diagnosis) %>%
+      summarise(cases = sum(.data[[col]], na.rm = TRUE), .groups = "drop") %>%
+      filter(cases > 0) %>%
+      arrange(diagnosis)
+    if (nrow(agg) == 0) return(
       ggplot() + base_theme() +
         annotate("text", x = .5, y = .5, label = "No data",
                  color = "#6b6b72", family = "mono", size = 4) +
         theme(axis.text = element_blank(), axis.title = element_blank())
     )
-    bw <- max(1, diff(range(vals)) / 60)
-    ggplot(data.frame(x = vals), aes(x = x)) +
-      geom_histogram(binwidth = bw, fill = fill_col, alpha = 0.85, color = NA) +
-      scale_x_continuous(labels = scales::comma_format()) +
+    agg$diagnosis <- factor(agg$diagnosis, levels = agg$diagnosis)
+    ggplot(agg, aes(x = diagnosis, y = cases)) +
+      geom_col(fill = fill_col, alpha = 0.85, width = 0.8) +
       scale_y_continuous(labels = scales::comma_format()) +
-      labs(x = "Case count per diagnosis / age group / year", y = "Frequency") +
-      base_theme()
+      labs(x = NULL, y = "Case count") +
+      base_theme() +
+      theme(
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 8, color = "#6b6b72")
+      )
   }
 
   output$hist_women <- renderPlot(
