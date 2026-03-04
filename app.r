@@ -1,19 +1,18 @@
 library(shiny)
 library(ggplot2)
-library(dplyr)
-library(readr)
+library(data.table)
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 
-df_raw <- read_csv("incidence_imputed.csv", show_col_types = FALSE)
+df_raw <- fread("incidence_imputed.csv")
 
 # Define ordered age groups
-age_levels <- c("0 - 4","5 - 9","10 - 14","15 - 19","20 - 24","25 - 29",
-                "30 - 34","35 - 39","40 - 44","45 - 49","50 - 54","55 - 59",
-                "60 - 64","65 - 69","70 - 74","75 - 79","80 - 84","85+")
+age_levels <- c("0 - 4", "5 - 9", "10 - 14", "15 - 19", "20 - 24", "25 - 29",
+                "30 - 34", "35 - 39", "40 - 44", "45 - 49", "50 - 54",
+                "55 - 59", "60 - 64", "65 - 69", "70 - 74", "75 - 79",
+                "80 - 84", "85+")
 
-df <- df_raw %>%
-  mutate(age_group = factor(age_group, levels = age_levels))
+df <- df_raw[, age_group := factor(age_group, levels = age_levels)]
 
 all_years  <- sort(unique(df$year))
 n_ages     <- length(age_levels)
@@ -189,7 +188,7 @@ ui <- fluidPage(
   # ── Header ────────────────────────────────────────────────────────────────
   div(class = "app-header",
     div(class = "app-title",  "Cancer Incidence"),
-    div(class = "app-subtitle", "Germany · 1999 – 2023 · ICD-10")
+    div(class = "app-subtitle", "Germany · 1999 - 2023 · ICD-10")
   ),
 
   div(class = "main-layout",
@@ -255,7 +254,7 @@ server <- function(input, output, session) {
 
   # Handle All / None buttons
   observeEvent(input$year_btn, {
-    if (input$year_btn == "all")
+    if (input$year_btn %in% "all")
       updateCheckboxGroupInput(session, "years", selected = all_years)
     else
       updateCheckboxGroupInput(session, "years", selected = character(0))
@@ -265,7 +264,7 @@ server <- function(input, output, session) {
   output$age_range_display <- renderUI({
     lo <- age_levels[input$age_range[1]]
     hi <- age_levels[input$age_range[2]]
-    label <- if (lo == hi) lo else paste(lo, "–", hi)
+    label <- if (lo == hi) lo else paste(lo, "-", hi)
     div(class = "age-range-display", label)
   })
 
@@ -273,12 +272,10 @@ server <- function(input, output, session) {
   filtered <- reactive({
     req(input$years)
     sel_ages <- age_levels[input$age_range[1]:input$age_range[2]]
-    df %>%
-      filter(
-        year      %in% as.integer(input$years),
-        age_group %in% sel_ages,
+    df[year %in% as.integer(input$years) &
+        age_group %in% sel_ages &
         diagnosis != "Krebs gesamt (C00-C97 ohne C44)"
-      )
+    ]
   })
 
   # Shared ggplot theme
@@ -296,24 +293,22 @@ server <- function(input, output, session) {
   }
 
   make_hist <- function(data, col, fill_col, label) {
-    agg <- data %>%
-      group_by(diagnosis) %>%
-      summarise(cases = sum(.data[[col]], na.rm = TRUE), .groups = "drop") %>%
-      arrange(diagnosis)
+    agg <- data[, .(cases = sum(get(col), na.rm = TRUE)), keyby = diagnosis]
     if (nrow(agg) == 0) return(
       ggplot() + base_theme() +
         annotate("text", x = .5, y = .5, label = "No data",
                  color = "#6b6b72", family = "mono", size = 4) +
         theme(axis.text = element_blank(), axis.title = element_blank())
     )
-    agg$diagnosis <- factor(agg$diagnosis, levels = agg$diagnosis)
+    agg[, diagnosis := factor(diagnosis, levels = diagnosis)]
     ggplot(agg, aes(x = diagnosis, y = cases)) +
       geom_col(fill = fill_col, alpha = 0.85, width = 0.8) +
       scale_y_continuous(labels = scales::comma_format()) +
       labs(x = NULL, y = "Case count") +
       base_theme() +
       theme(
-        axis.text.x = element_text(angle = 45, hjust = 1, size = 8, color = "#6b6b72")
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 8,
+        color = "#6b6b72")
       )
   }
 
