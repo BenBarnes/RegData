@@ -173,7 +173,7 @@ ui <- fluidPage(
       }
       .stat-pill .sp-label { color: #6b6b72; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
       .stat-pill .sp-val   { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 300; color: #f0ebe0; }
-      .stat-pill.women .sp-val { color: #e07b8a; }
+      .stat-pill.women .sp-val { color: #6abf85; }
       .stat-pill.men   .sp-val { color: #6a9bd4; }
 
       /* ── Plot area ───────────────────────────────────── */
@@ -193,7 +193,7 @@ ui <- fluidPage(
         font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
         margin-bottom: 6px;
       }
-      .plot-sex-label.women { color: #e07b8a; }
+      .plot-sex-label.women { color: #6abf85; }
       .plot-sex-label.men   { color: #6a9bd4; }
 
       .shiny-plot-output,
@@ -400,7 +400,7 @@ server <- function(input, output, session) {
       config(displayModeBar = FALSE)
   }
 
-  output$hist_women <- renderPlotly(make_hist(filtered(), "women", "#e07b8a", "Women", input$y_transform))
+  output$hist_women <- renderPlotly(make_hist(filtered(), "women", "#6abf85", "Women", input$y_transform))
   output$hist_men   <- renderPlotly(make_hist(filtered(), "men",   "#6a9bd4", "Men",   input$y_transform))
 
   fmt <- function(x) format(round(x), big.mark = ",", scientific = FALSE)
