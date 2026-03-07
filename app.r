@@ -11,6 +11,8 @@ age_levels <- c("0 - 4", "5 - 9", "10 - 14", "15 - 19", "20 - 24", "25 - 29",
                 "30 - 34", "35 - 39", "40 - 44", "45 - 49", "50 - 54",
                 "55 - 59", "60 - 64", "65 - 69", "70 - 74", "75 - 79",
                 "80 - 84", "85+")
+loAges <- unlist(lapply(strsplit(age_levels, " - "), `[[`, 1))
+hiAges <- c(unlist(lapply(strsplit(head(age_levels, -1), " - "), `[[`, 2)), "85+")
 
 df <- df_raw[, age_group := factor(age_group, levels = age_levels)]
 
@@ -221,7 +223,35 @@ ui <- fluidPage(
         uiOutput("age_range_display"),
         sliderInput("age_range", label = NULL,
                     min = 1, max = n_ages, value = c(1, n_ages), step = 1,
-                    ticks = FALSE)
+                    ticks = FALSE),
+        tags$script(HTML(sprintf("
+          (function() {
+            var lo = %s;
+            var hi = %s;
+            $(document).on('shiny:sessioninitialized', function() {
+              var slider = $('#age_range').data('ionRangeSlider');
+              var $irs   = $('#age_range').parent().find('.irs');
+              function fixLabels() {
+                var from   = slider.result.from, to = slider.result.to;
+                var fromLo = lo[from - 1], toHi = hi[to - 1];
+                var rangeText = fromLo === toHi ? fromLo : fromLo + ' \u2013 ' + toHi;
+                $irs.find('.irs-from').text(fromLo);
+                $irs.find('.irs-to').text(from === to ? rangeText : toHi);
+                $irs.find('.irs-single').text(rangeText);
+              }
+              var observer = new MutationObserver(function() {
+                observer.disconnect();
+                fixLabels();
+                observer.observe($irs[0], { subtree: true, childList: true, characterData: true });
+              });
+              fixLabels();
+              observer.observe($irs[0], { subtree: true, childList: true, characterData: true });
+            });
+          })();
+        ",
+        paste0('["', paste(loAges, collapse = '","'), '"]'),
+        paste0('["', paste(hiAges, collapse = '","'), '"]')
+        )))
       ),
 
       # Years
@@ -281,9 +311,15 @@ server <- function(input, output, session) {
 
   # Age range label
   output$age_range_display <- renderUI({
-    lo <- age_levels[input$age_range[1]]
-    hi <- age_levels[input$age_range[2]]
-    label <- if (lo == hi) lo else paste(lo, "-", hi)
+    lo_group <- age_levels[input$age_range[1]]
+    hi_group <- age_levels[input$age_range[2]]
+    label <- if (lo_group == hi_group) {
+      lo_group
+    } else {
+      lo_val <- trimws(strsplit(lo_group, " - ")[[1]][1])
+      hi_val <- if (hi_group == "85+") "85+" else trimws(strsplit(hi_group, " - ")[[1]][2])
+      paste(lo_val, hi_val, sep = " - ")
+    }
     div(class = "age-range-display", label)
   })
 
