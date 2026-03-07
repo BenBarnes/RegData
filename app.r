@@ -21,10 +21,29 @@ n_ages     <- length(age_levels)
 
 ui <- fluidPage(
   tags$head(
-    tags$link(
-      href = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,300;9..144,600&display=swap",
-      rel  = "stylesheet"
-    ),
+    tags$style(HTML("
+      @font-face {
+        font-family: 'DM Mono';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('fonts/dm-mono-400.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'DM Mono';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url('fonts/dm-mono-500.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Fraunces';
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url('fonts/fraunces-variable.woff2') format('woff2');
+      }
+    ")),
     tags$style(HTML("
 
       /* ── Reset & base ──────────────────────────────── */
