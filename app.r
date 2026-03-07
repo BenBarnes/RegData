@@ -1,6 +1,7 @@
 library(shiny)
 library(ggplot2)
 library(data.table)
+library(plotly)
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -195,7 +196,8 @@ ui <- fluidPage(
       .plot-sex-label.women { color: #e07b8a; }
       .plot-sex-label.men   { color: #6a9bd4; }
 
-      .shiny-plot-output {
+      .shiny-plot-output,
+      .plotly.html-widget {
         flex: 1;
         min-height: 220px;
       }
@@ -287,11 +289,11 @@ ui <- fluidPage(
     div(class = "plot-area",
       div(class = "plot-row",
         div(class = "plot-sex-label women", "Women"),
-        plotOutput("hist_women", height = "100%")
+        plotlyOutput("hist_women", height = "100%", width = "100%")
       ),
       div(class = "plot-row",
         div(class = "plot-sex-label men", "Men"),
-        plotOutput("hist_men", height = "100%")
+        plotlyOutput("hist_men", height = "100%", width = "100%")
       )
     )
   )
@@ -350,31 +352,40 @@ server <- function(input, output, session) {
   make_hist <- function(data, col, fill_col, label) {
     agg <- data[, .(cases = sum(get(col), na.rm = TRUE)), keyby = diagnosis]
     if (nrow(agg) == 0) return(
-      ggplot() + base_theme() +
-        annotate("text", x = .5, y = .5, label = "No data",
-                 color = "#6b6b72", family = "mono", size = 4) +
-        theme(axis.text = element_blank(), axis.title = element_blank())
+      ggplotly(
+        ggplot() + base_theme() +
+          annotate("text", x = .5, y = .5, label = "No data",
+                   color = "#6b6b72", family = "mono", size = 4) +
+          theme(axis.text = element_blank(), axis.title = element_blank())
+      ) |> layout(paper_bgcolor = "#0e0e10", plot_bgcolor = "#0e0e10") |>
+        config(displayModeBar = FALSE)
     )
     agg[, diagnosis := factor(diagnosis, levels = diagnosis)]
-    ggplot(agg, aes(x = diagnosis, y = cases)) +
+    p <- ggplot(agg, aes(x = diagnosis, y = cases,
+                         text = paste0(diagnosis, "<br>", scales::comma(cases), " cases"))) +
       geom_col(fill = fill_col, alpha = 0.85, width = 0.8) +
-      scale_y_continuous(labels = scales::comma_format()) +
+      scale_y_continuous(labels = scales::comma_format(), transform = "identity") +
       labs(x = NULL, y = "Case count") +
       base_theme() +
       theme(
         axis.text.x = element_text(angle = 45, hjust = 1, size = 8,
         color = "#6b6b72")
       )
+    ggplotly(p, tooltip = "text") |>
+      layout(
+        paper_bgcolor = "#0e0e10",
+        plot_bgcolor  = "#0e0e10",
+        hoverlabel    = list(
+          bgcolor   = "#1a1a1e",
+          bordercolor = "#2a2a2e",
+          font      = list(color = "#e8e4dc", family = "DM Mono, monospace", size = 12)
+        )
+      ) |>
+      config(displayModeBar = FALSE)
   }
 
-  output$hist_women <- renderPlot(
-    make_hist(filtered(), "women", "#e07b8a", "Women"),
-    bg = "#0e0e10"
-  )
-  output$hist_men <- renderPlot(
-    make_hist(filtered(), "men", "#6a9bd4", "Men"),
-    bg = "#0e0e10"
-  )
+  output$hist_women <- renderPlotly(make_hist(filtered(), "women", "#e07b8a", "Women"))
+  output$hist_men   <- renderPlotly(make_hist(filtered(), "men",   "#6a9bd4", "Men"))
 
   fmt <- function(x) format(round(x), big.mark = ",", scientific = FALSE)
   output$total_women <- renderText(fmt(sum(filtered()$women, na.rm = TRUE)))
