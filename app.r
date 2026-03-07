@@ -202,6 +202,13 @@ ui <- fluidPage(
         min-height: 220px;
       }
 
+      /* radio buttons */
+      .radio label { color: #4e4e58; font-size: 12px; display: flex; align-items: center; gap: 8px;
+                     padding: 4px 6px; border-radius: 4px; cursor: pointer; transition: color .15s; }
+      .radio label:hover { color: #f0ebe0; }
+      .radio input[type=radio] { accent-color: #c4a882; width: 13px; height: 13px; }
+      .radio:has(input:checked) label { color: #f0ebe0; }
+
       /* shiny busy indicator */
       .shiny-busy-indicator { display: none !important; }
 
@@ -254,6 +261,15 @@ ui <- fluidPage(
         paste0('["', paste(loAges, collapse = '","'), '"]'),
         paste0('["', paste(hiAges, collapse = '","'), '"]')
         )))
+      ),
+
+      # Y-axis transformation
+      div(
+        div(class = "ctrl-label", "Y-Axis Scale"),
+        radioButtons("y_transform", label = NULL,
+                     choices  = c("No transformation" = "identity",
+                                  "Square root"       = "sqrt"),
+                     selected = "identity")
       ),
 
       # Years
@@ -349,7 +365,7 @@ server <- function(input, output, session) {
     )
   }
 
-  make_hist <- function(data, col, fill_col, label) {
+  make_hist <- function(data, col, fill_col, label, y_transform = "identity") {
     agg <- data[, .(cases = sum(get(col), na.rm = TRUE)), keyby = diagnosis]
     if (nrow(agg) == 0) return(
       ggplotly(
@@ -364,7 +380,7 @@ server <- function(input, output, session) {
     p <- ggplot(agg, aes(x = diagnosis, y = cases,
                          text = paste0(diagnosis, "<br>", scales::comma(cases), " cases"))) +
       geom_col(fill = fill_col, alpha = 0.85, width = 0.8) +
-      scale_y_continuous(labels = scales::comma_format(), transform = "identity") +
+      scale_y_continuous(labels = scales::comma_format(), transform = y_transform) +
       labs(x = NULL, y = "Case count") +
       base_theme() +
       theme(
@@ -384,8 +400,8 @@ server <- function(input, output, session) {
       config(displayModeBar = FALSE)
   }
 
-  output$hist_women <- renderPlotly(make_hist(filtered(), "women", "#e07b8a", "Women"))
-  output$hist_men   <- renderPlotly(make_hist(filtered(), "men",   "#6a9bd4", "Men"))
+  output$hist_women <- renderPlotly(make_hist(filtered(), "women", "#e07b8a", "Women", input$y_transform))
+  output$hist_men   <- renderPlotly(make_hist(filtered(), "men",   "#6a9bd4", "Men",   input$y_transform))
 
   fmt <- function(x) format(round(x), big.mark = ",", scientific = FALSE)
   output$total_women <- renderText(fmt(sum(filtered()$women, na.rm = TRUE)))
