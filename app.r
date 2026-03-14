@@ -339,7 +339,10 @@ server <- function(input, output, session) {
   }
 
   make_hist <- function(data, col, fill_col, label, y_transform = "identity") {
-    agg <- data[, .(cases = sum(get(col), na.rm = TRUE)), keyby = diagnosis]
+    agg <- data[, .(cases = sum(get(col), na.rm = TRUE)), by = diagnosis]
+    agg[, icd := sub(".*\\((.+)\\).*", "\\1", diagnosis)]
+    setorder(agg, icd)
+    agg[, icd := NULL]
     if (nrow(agg) == 0) return(
       ggplotly(
         ggplot() + base_theme() +
