@@ -125,7 +125,7 @@ ui <- fluidPage(
       /* slider override */
       .irs--shiny .irs-bar,
       .irs--shiny .irs-bar--single { background: #c4a882 !important; border-color: #c4a882 !important; }
-      .irs--shiny .irs-handle       { background: #f0ebe0 !important; border-color: #c4a882 !important; }
+      .irs--shiny .irs-handle       { background: #f0ebe0 !important; border-color: #c4a882 !important; width: 6px !important; border-radius: 2px !important; }
       .irs--shiny .irs-from,
       .irs--shiny .irs-to,
       .irs--shiny .irs-single        { background: #c4a882 !important; color: #0e0e10 !important; font-family: 'DM Mono', monospace !important; font-size: 11px !important; }
@@ -133,28 +133,6 @@ ui <- fluidPage(
       .irs--shiny .irs-grid-text     { color: #6b6b72 !important; font-family: 'DM Mono', monospace !important; font-size: 10px !important; }
       .irs--shiny .irs-min,
       .irs--shiny .irs-max           { display: none !important; }
-
-      /* year checkboxes */
-      .year-scroll {
-        max-height: 340px;
-        overflow-y: auto;
-        padding-right: 4px;
-      }
-      .year-scroll::-webkit-scrollbar       { width: 4px; }
-      .year-scroll::-webkit-scrollbar-track { background: transparent; }
-      .year-scroll::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 2px; }
-
-      .year-scroll .checkbox            { margin: 0 !important; padding: 0 !important; }
-      .year-scroll .checkbox label      {
-        display: flex; align-items: center; gap: 10px;
-        padding: 5px 6px; border-left: 2px solid transparent; border-radius: 4px; cursor: pointer;
-        color: #4e4e58; font-size: 12px; transition: color .15s, background .15s;
-      }
-      .year-scroll .checkbox label:hover { color: #f0ebe0; background: #1e1e22; }
-      .year-scroll input[type=checkbox]  { accent-color: #c4a882; width: 13px; height: 13px; }
-      .year-scroll .checkbox:has(input:checked) label {
-        color: #f0ebe0; background: #1e1e22; border-left-color: #c4a882;
-      }
 
       .sel-btns { display: flex; gap: 8px; margin-bottom: 10px; }
       .sel-btn  {
@@ -276,16 +254,13 @@ ui <- fluidPage(
       div(
         div(class = "ctrl-label", "Years"),
         div(class = "sel-btns",
-          tags$button("All",  class = "sel-btn", id = "btn_all",
-                      onclick = "Shiny.setInputValue('year_btn', 'all',  {priority: 'event'})"),
-          tags$button("None", class = "sel-btn", id = "btn_none",
-                      onclick = "Shiny.setInputValue('year_btn', 'none', {priority: 'event'})")
+          tags$button("All", class = "sel-btn", id = "btn_all",
+                      onclick = "Shiny.setInputValue('year_btn', 'all', {priority: 'event'})")
         ),
-        div(class = "year-scroll",
-          checkboxGroupInput("years", label = NULL,
-                             choices  = all_years,
-                             selected = all_years)
-        )
+        sliderInput("year_range", label = NULL,
+                    min = min(all_years), max = max(all_years),
+                    value = c(min(all_years), max(all_years)),
+                    step = 1, sep = "", ticks = FALSE)
       ),
 
       # Stats
@@ -319,12 +294,10 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
 
-  # Handle All / None buttons
+  # Handle All button
   observeEvent(input$year_btn, {
-    if (input$year_btn %in% "all")
-      updateCheckboxGroupInput(session, "years", selected = all_years)
-    else
-      updateCheckboxGroupInput(session, "years", selected = character(0))
+    updateSliderInput(session, "year_range",
+                      value = c(min(all_years), max(all_years)))
   })
 
   # Age range label
@@ -343,9 +316,9 @@ server <- function(input, output, session) {
 
   # Filtered data
   filtered <- reactive({
-    req(input$years)
+    req(input$year_range)
     sel_ages <- age_levels[input$age_range[1]:input$age_range[2]]
-    df[year %in% as.integer(input$years) &
+    df[year >= input$year_range[1] & year <= input$year_range[2] &
         age_group %in% sel_ages &
         diagnosis != "Krebs gesamt (C00-C97 ohne C44)"
     ]
