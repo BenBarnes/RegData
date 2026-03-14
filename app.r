@@ -132,7 +132,7 @@ ui <- fluidPage(
       .irs--shiny .irs-line          { background: #2a2a2e !important; border-color: #2a2a2e !important; }
       .irs--shiny .irs-grid-text     { color: #6b6b72 !important; font-family: 'DM Mono', monospace !important; font-size: 10px !important; }
       .irs--shiny .irs-min,
-      .irs--shiny .irs-max           { color: #6b6b72 !important; font-family: 'DM Mono', monospace !important; font-size: 10px !important; }
+      .irs--shiny .irs-max           { display: none !important; }
 
       /* year checkboxes */
       .year-scroll {
