@@ -53,8 +53,8 @@ ui <- fluidPage(
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       body {
-        background: #0e0e10;
-        color: #e8e4dc;
+        background: #f6f3ee;
+        color: #1e1c18;
         font-family: 'DM Mono', monospace;
         font-size: 13px;
         min-height: 100vh;
@@ -63,8 +63,8 @@ ui <- fluidPage(
 
       /* ── Header ─────────────────────────────────────── */
       .app-header {
-        background: #0e0e10;
-        border-bottom: 1px solid #2a2a2e;
+        background: #f6f3ee;
+        border-bottom: 1px solid #cdc8c0;
         padding: 28px 40px 22px;
         display: flex;
         align-items: baseline;
@@ -74,12 +74,12 @@ ui <- fluidPage(
         font-family: 'Fraunces', serif;
         font-size: 26px;
         font-weight: 600;
-        color: #f0ebe0;
+        color: #18160f;
         letter-spacing: -0.5px;
         line-height: 1;
       }
       .app-subtitle {
-        color: #6b6b72;
+        color: #78746c;
         font-size: 11px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -96,8 +96,8 @@ ui <- fluidPage(
       .sidebar {
         width: 280px;
         min-width: 280px;
-        background: #131316;
-        border-right: 1px solid #2a2a2e;
+        background: #ede9e3;
+        border-right: 1px solid #cdc8c0;
         padding: 28px 24px;
         display: flex;
         flex-direction: column;
@@ -108,7 +108,7 @@ ui <- fluidPage(
         font-size: 10px;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: #c4a882;
+        color: #8a6030;
         margin-bottom: 12px;
       }
 
@@ -117,42 +117,42 @@ ui <- fluidPage(
         font-family: 'Fraunces', serif;
         font-size: 22px;
         font-weight: 300;
-        color: #f0ebe0;
+        color: #18160f;
         margin-bottom: 14px;
         letter-spacing: -0.3px;
       }
 
       /* slider override */
       .irs--shiny .irs-bar,
-      .irs--shiny .irs-bar--single { background: #c4a882 !important; border-color: #c4a882 !important; }
-      .irs--shiny .irs-handle       { background: #f0ebe0 !important; border-color: #c4a882 !important; width: 6px !important; border-radius: 2px !important; }
+      .irs--shiny .irs-bar--single { background: #8a6030 !important; border-color: #8a6030 !important; }
+      .irs--shiny .irs-handle       { background: #1e1c18 !important; border-color: #8a6030 !important; width: 6px !important; border-radius: 2px !important; }
       .irs--shiny .irs-from,
       .irs--shiny .irs-to,
-      .irs--shiny .irs-single        { background: #c4a882 !important; color: #0e0e10 !important; font-family: 'DM Mono', monospace !important; font-size: 11px !important; }
-      .irs--shiny .irs-line          { background: #2a2a2e !important; border-color: #2a2a2e !important; }
-      .irs--shiny .irs-grid-text     { color: #6b6b72 !important; font-family: 'DM Mono', monospace !important; font-size: 10px !important; }
+      .irs--shiny .irs-single        { background: #8a6030 !important; color: #f6f3ee !important; font-family: 'DM Mono', monospace !important; font-size: 11px !important; }
+      .irs--shiny .irs-line          { background: #cdc8c0 !important; border-color: #cdc8c0 !important; }
+      .irs--shiny .irs-grid-text     { color: #78746c !important; font-family: 'DM Mono', monospace !important; font-size: 10px !important; }
       .irs--shiny .irs-min,
       .irs--shiny .irs-max           { display: none !important; }
 
       .sel-btns { display: flex; gap: 8px; margin-bottom: 10px; }
       .sel-btn  {
-        background: none; border: 1px solid #2a2a2e; color: #6b6b72;
+        background: none; border: 1px solid #cdc8c0; color: #78746c;
         font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
         text-transform: uppercase; padding: 4px 10px; border-radius: 3px;
         cursor: pointer; transition: border-color .15s, color .15s;
       }
-      .sel-btn:hover { border-color: #c4a882; color: #c4a882; }
+      .sel-btn:hover { border-color: #8a6030; color: #8a6030; }
 
       /* stat pills */
       .stat-row { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
       .stat-pill {
-        background: #1a1a1e; border: 1px solid #2a2a2e; border-radius: 6px;
+        background: #e4e0d9; border: 1px solid #cdc8c0; border-radius: 6px;
         padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
       }
-      .stat-pill .sp-label { color: #6b6b72; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
-      .stat-pill .sp-val   { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 300; color: #f0ebe0; }
-      .stat-pill.women .sp-val { color: #6abf85; }
-      .stat-pill.men   .sp-val { color: #6a9bd4; }
+      .stat-pill .sp-label { color: #78746c; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .stat-pill .sp-val   { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 300; color: #1e1c18; }
+      .stat-pill.women .sp-val { color: #2e9058; }
+      .stat-pill.men   .sp-val { color: #2a6bb5; }
 
       /* ── Plot area ───────────────────────────────────── */
       .plot-area {
@@ -171,8 +171,8 @@ ui <- fluidPage(
         font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
         margin-bottom: 6px;
       }
-      .plot-sex-label.women { color: #6abf85; }
-      .plot-sex-label.men   { color: #6a9bd4; }
+      .plot-sex-label.women { color: #2e9058; }
+      .plot-sex-label.men   { color: #2a6bb5; }
 
       .shiny-plot-output,
       .plotly.html-widget {
@@ -181,11 +181,11 @@ ui <- fluidPage(
       }
 
       /* radio buttons */
-      .radio label { color: #4e4e58; font-size: 12px; display: flex; align-items: center; gap: 8px;
+      .radio label { color: #a09890; font-size: 12px; display: flex; align-items: center; gap: 8px;
                      padding: 4px 6px; border-radius: 4px; cursor: pointer; transition: color .15s; }
-      .radio label:hover { color: #f0ebe0; }
-      .radio input[type=radio] { accent-color: #c4a882; width: 13px; height: 13px; }
-      .radio:has(input:checked) label { color: #f0ebe0; }
+      .radio label:hover { color: #1e1c18; }
+      .radio input[type=radio] { accent-color: #8a6030; width: 13px; height: 13px; }
+      .radio:has(input:checked) label { color: #1e1c18; }
 
       /* shiny busy indicator */
       .shiny-busy-indicator { display: none !important; }
@@ -328,12 +328,12 @@ server <- function(input, output, session) {
   base_theme <- function() {
     theme_minimal(base_family = "mono") +
     theme(
-      plot.background  = element_rect(fill = "#0e0e10", color = NA),
-      panel.background = element_rect(fill = "#0e0e10", color = NA),
-      panel.grid.major = element_line(color = "#1e1e22", linewidth = 0.4),
+      plot.background  = element_rect(fill = "#f6f3ee", color = NA),
+      panel.background = element_rect(fill = "#f6f3ee", color = NA),
+      panel.grid.major = element_line(color = "#e8e4de", linewidth = 0.4),
       panel.grid.minor = element_blank(),
-      axis.text        = element_text(color = "#6b6b72", size = 10),
-      axis.title       = element_text(color = "#6b6b72", size = 10),
+      axis.text        = element_text(color = "#78746c", size = 10),
+      axis.title       = element_text(color = "#78746c", size = 10),
       plot.margin      = margin(4, 4, 4, 4)
     )
   }
@@ -347,9 +347,9 @@ server <- function(input, output, session) {
       ggplotly(
         ggplot() + base_theme() +
           annotate("text", x = .5, y = .5, label = "No data",
-                   color = "#6b6b72", family = "mono", size = 4) +
+                   color = "#78746c", family = "mono", size = 4) +
           theme(axis.text = element_blank(), axis.title = element_blank())
-      ) |> layout(paper_bgcolor = "#0e0e10", plot_bgcolor = "#0e0e10") |>
+      ) |> layout(paper_bgcolor = "#f6f3ee", plot_bgcolor = "#f6f3ee") |>
         config(displayModeBar = FALSE)
     )
     agg[, diagnosis := factor(diagnosis, levels = diagnosis)]
@@ -365,19 +365,19 @@ server <- function(input, output, session) {
       )
     ggplotly(p, tooltip = "text") |>
       layout(
-        paper_bgcolor = "#0e0e10",
-        plot_bgcolor  = "#0e0e10",
+        paper_bgcolor = "#f6f3ee",
+        plot_bgcolor  = "#f6f3ee",
         hoverlabel    = list(
-          bgcolor   = "#1a1a1e",
-          bordercolor = "#2a2a2e",
-          font      = list(color = "#e8e4dc", family = "DM Mono, monospace", size = 12)
+          bgcolor     = "#e4e0d9",
+          bordercolor = "#cdc8c0",
+          font        = list(color = "#1e1c18", family = "DM Mono, monospace", size = 12)
         )
       ) |>
       config(displayModeBar = FALSE)
   }
 
-  output$hist_women <- renderPlotly(make_hist(filtered(), "women", "#6abf85", "Women", input$y_transform))
-  output$hist_men   <- renderPlotly(make_hist(filtered(), "men",   "#6a9bd4", "Men",   input$y_transform))
+  output$hist_women <- renderPlotly(make_hist(filtered(), "women", "#2e9058", "Women", input$y_transform))
+  output$hist_men   <- renderPlotly(make_hist(filtered(), "men",   "#2a6bb5", "Men",   input$y_transform))
 
   fmt <- function(x) format(round(x), big.mark = ",", scientific = FALSE)
   output$total_women <- renderText(fmt(sum(filtered()$women, na.rm = TRUE)))
