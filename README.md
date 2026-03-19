@@ -33,7 +33,7 @@ Built with R Shiny and plotly.
 |---|---|
 | Age Range | Slider selecting a contiguous range of 5-year age groups (0–4 through 85+) |
 | Y-Axis Scale | Toggle between linear and square-root y-axis transformation |
-| Years | Checkbox list to include/exclude individual years (1999–2023) |
+| Years | Slider selecting a contiguous range of diagnosis years (1999–2023) |
 
 **Main panel**
 
