@@ -241,13 +241,35 @@ ui <- fluidPage(
         )))
       ),
 
-      # Y-axis transformation
+      # Chart type
       div(
-        div(class = "ctrl-label", "Y-Axis Scale"),
-        radioButtons("y_transform", label = NULL,
-                     choices  = c("No transformation" = "identity",
-                                  "Square root"       = "sqrt"),
-                     selected = "identity")
+        div(class = "ctrl-label", "Chart Type"),
+        radioButtons("chart_type", label = NULL,
+                     choices  = c("Bar chart" = "bar", "Treemap" = "treemap"),
+                     selected = "bar")
+      ),
+
+      # Y-axis transformation (bar only)
+      conditionalPanel(
+        condition = "input.chart_type == 'bar'",
+        div(
+          div(class = "ctrl-label", "Y-Axis Scale"),
+          radioButtons("y_transform", label = NULL,
+                       choices  = c("No transformation" = "identity",
+                                    "Square root"       = "sqrt"),
+                       selected = "identity")
+        )
+      ),
+
+      # Min count (treemap only)
+      conditionalPanel(
+        condition = "input.chart_type == 'treemap'",
+        div(
+          div(class = "ctrl-label", "Min Share (%)"),
+          sliderInput("min_pct", label = NULL,
+                      min = 0, max = 10, value = 0, step = 0.1,
+                      ticks = FALSE)
+        )
       ),
 
       # Years
@@ -376,8 +398,62 @@ server <- function(input, output, session) {
       config(displayModeBar = FALSE)
   }
 
-  output$hist_women <- renderPlotly(make_hist(filtered(), "women", "#2e9058", "Women", input$y_transform))
-  output$hist_men   <- renderPlotly(make_hist(filtered(), "men",   "#2a6bb5", "Men",   input$y_transform))
+  make_treemap <- function(data, col, fill_col, min_pct = 0) {
+    agg <- data[, .(cases = sum(get(col), na.rm = TRUE)), by = diagnosis]
+    agg[, icd := sub(".*\\((.+)\\).*", "\\1", diagnosis)]
+    setorder(agg, icd)
+    threshold <- (min_pct / 100) * sum(agg$cases, na.rm = TRUE)
+    below <- agg[cases < threshold]
+    agg   <- agg[cases >= threshold]
+    if (nrow(below) > 0) {
+      rest_cases <- sum(below$cases, na.rm = TRUE)
+      agg <- rbind(agg, data.table(diagnosis = "Other", icd = "Other", cases = rest_cases))
+    }
+    if (nrow(agg) == 0) return(
+      plotly_empty() |>
+        layout(paper_bgcolor = "#f6f3ee", plot_bgcolor = "#f6f3ee") |>
+        config(displayModeBar = FALSE)
+    )
+    light_col <- if (fill_col == "#2e9058") "#c8e8d8" else "#c8d8f0"
+    plot_ly(
+      labels    = agg$icd,
+      parents   = rep("", nrow(agg)),
+      values    = agg$cases,
+      type      = "treemap",
+      hovertext = paste0(agg$diagnosis, "<br>", scales::comma(agg$cases), " cases"),
+      hoverinfo = "text",
+      textinfo  = "label+value",
+      textfont  = list(family = "DM Mono, monospace", size = 11, color = "#1e1c18"),
+      marker    = list(
+        colors     = agg$cases,
+        colorscale = list(list(0, light_col), list(1, fill_col)),
+        showscale  = FALSE,
+        line       = list(width = 1, color = "#f6f3ee")
+      )
+    ) |>
+      layout(
+        paper_bgcolor = "#f6f3ee",
+        hoverlabel    = list(
+          bgcolor     = "#e4e0d9",
+          bordercolor = "#cdc8c0",
+          font        = list(color = "#1e1c18", family = "DM Mono, monospace", size = 12)
+        )
+      ) |>
+      config(displayModeBar = FALSE)
+  }
+
+  output$hist_women <- renderPlotly({
+    if (isTRUE(input$chart_type == "treemap"))
+      make_treemap(filtered(), "women", "#2e9058", input$min_pct %||% 0)
+    else
+      make_hist(filtered(), "women", "#2e9058", "Women", input$y_transform)
+  })
+  output$hist_men <- renderPlotly({
+    if (isTRUE(input$chart_type == "treemap"))
+      make_treemap(filtered(), "men", "#2a6bb5", input$min_pct %||% 0)
+    else
+      make_hist(filtered(), "men", "#2a6bb5", "Men", input$y_transform)
+  })
 
   fmt <- function(x) format(round(x), big.mark = ",", scientific = FALSE)
   output$total_women <- renderText(fmt(sum(filtered()$women, na.rm = TRUE)))
