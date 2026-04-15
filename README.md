@@ -32,12 +32,14 @@ Built with R Shiny and plotly.
 | Control | Description |
 |---|---|
 | Age Range | Slider selecting a contiguous range of 5-year age groups (0–4 through 85+) |
-| Y-Axis Scale | Toggle between linear and square-root y-axis transformation |
+| Chart type | Toggle between bar chart and treemap |
+| Y-Axis Scale (bar chart) | Toggle between linear and square-root y-axis transformation |
+| Min share (%) (treemap) | Slider selecting the threshold below which diagnoses are added together into an "other" category |
 | Years | Slider selecting a contiguous range of diagnosis years (1999–2023) |
 
 **Main panel**
 
-Two interactive bar charts (women / men) show aggregated case counts by diagnosis for the selected filters. Hovering a bar displays the diagnosis name and case count. Summary boxes in the sidebar show total cases for women and men across the selection.
+Two interactive bar charts or treemaps (women / men) show aggregated case counts by diagnosis for the selected filters. Hovering over a bar or rectangle displays the diagnosis name and case count. Summary boxes in the sidebar show total selected cases for women and men.
 
 **Dependencies:** `shiny`, `ggplot2`, `data.table`, `plotly`, `scales`
 
