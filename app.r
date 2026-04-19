@@ -190,6 +190,7 @@ ui <- fluidPage(
       /* shiny busy indicator */
       .shiny-busy-indicator { display: none !important; }
 
+
     "))
   ),
 
@@ -283,6 +284,19 @@ ui <- fluidPage(
                     min = min(all_years), max = max(all_years),
                     value = c(min(all_years), max(all_years)),
                     step = 1, sep = "", ticks = FALSE)
+      ),
+
+      # Save plots
+      div(
+        div(class = "ctrl-label", "Save Plot"),
+        div(class = "sel-btns",
+          tags$button("Women", class = "sel-btn",
+            onclick = "Plotly.downloadImage('hist_women',
+              {format:'png', width:1400, height:700, scale:2, filename:'women_plot'})"),
+          tags$button("Men", class = "sel-btn",
+            onclick = "Plotly.downloadImage('hist_men',
+              {format:'png', width:1400, height:700, scale:2, filename:'men_plot'})")
+        )
       ),
 
       # Stats
@@ -442,18 +456,16 @@ server <- function(input, output, session) {
       config(displayModeBar = FALSE)
   }
 
-  output$hist_women <- renderPlotly({
+  make_plot <- function(sex, fill_col) {
     if (isTRUE(input$chart_type == "treemap"))
-      make_treemap(filtered(), "women", "#2e9058", input$min_pct %||% 0)
+      make_treemap(filtered(), sex, fill_col, input$min_pct %||% 0)
     else
-      make_hist(filtered(), "women", "#2e9058", "Women", input$y_transform)
-  })
-  output$hist_men <- renderPlotly({
-    if (isTRUE(input$chart_type == "treemap"))
-      make_treemap(filtered(), "men", "#2a6bb5", input$min_pct %||% 0)
-    else
-      make_hist(filtered(), "men", "#2a6bb5", "Men", input$y_transform)
-  })
+      make_hist(filtered(), sex, fill_col, sex, input$y_transform)
+  }
+
+
+  output$hist_women <- renderPlotly(make_plot("women", "#2e9058"))
+  output$hist_men   <- renderPlotly(make_plot("men",   "#2a6bb5"))
 
   fmt <- function(x) format(round(x), big.mark = ",", scientific = FALSE)
   output$total_women <- renderText(fmt(sum(filtered()$women, na.rm = TRUE)))
